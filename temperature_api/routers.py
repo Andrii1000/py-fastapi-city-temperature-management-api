@@ -1,12 +1,12 @@
 import os
 
+import httpx
+from datetime import datetime
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends
 from pydantic_settings import BaseSettings
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
-import httpx
-from datetime import datetime
 
 from city_api.crud import get_cities
 from dependencies import get_db
@@ -14,6 +14,7 @@ from temperature_api import schemas, crud
 
 
 load_dotenv()
+
 
 class Settings(BaseSettings):
     weather_api_key: str = os.getenv("WEATHER_API_KEY")

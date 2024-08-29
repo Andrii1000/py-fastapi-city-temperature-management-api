@@ -11,6 +11,7 @@ app = FastAPI()
 app.include_router(city_routers, prefix="/api/v1", tags=["cities"])
 app.include_router(temperature_routers, prefix="/api/v1", tags=["temperatures"])
 
+
 @app.on_event("startup")
 async def startup():
     async with engine.begin() as conn:

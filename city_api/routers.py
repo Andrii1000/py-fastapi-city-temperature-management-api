@@ -1,5 +1,9 @@
 # app/api/cities.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import(
+    APIRouter,
+    Depends,
+    HTTPException
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from city_api import schemas, crud
