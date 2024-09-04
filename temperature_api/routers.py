@@ -38,17 +38,20 @@ async def read_temperatures_by_city(city_id: int, db: AsyncSession = Depends(get
 
 @router.post("/temperatures/update", response_model=List[schemas.TemperatureList])
 async def update_temperatures(db: AsyncSession = Depends(get_db)):
-    cities = await get_cities(db)  # Ensure this is awaited
-    updated_temperatures = []
+    try:
+        cities = await get_cities(db)  # Ensure this is awaited
+        updated_temperatures = []
 
-    async with httpx.AsyncClient() as client:  # Use async HTTP client
-        for city in cities:
-            response = await client.get(
-                f"http://api.weatherapi.com/v1/current.json?key={settings.weather_api_key}&q={city.name}")
-            data = response.json()
-            temperature = data['current']['temp_c']
-            temp_create = schemas.TemperatureCreate(city_id=city.id, date_time=datetime.now(), temperature=temperature)
-            updated_temperature = await crud.create_temperature(db, temp_create)
-            updated_temperatures.append(updated_temperature)
+        async with httpx.AsyncClient() as client:  # Use async HTTP client
+            for city in cities:
+                response = await client.get(
+                    f"http://api.weatherapi.com/v1/current.json?key={settings.weather_api_key}&q={city.name}")
+                data = response.json()
+                temperature = data['current']['temp_c']
+                temp_create = schemas.TemperatureCreate(city_id=city.id, date_time=datetime.now(), temperature=temperature)
+                updated_temperature = await crud.create_temperature(db, temp_create)
+                updated_temperatures.append(updated_temperature)
+    except Exception as e:
+        print(f"An unexpected error occurred while updating temperatures: {e}")
 
     return updated_temperatures

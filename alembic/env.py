@@ -5,8 +5,6 @@ from sqlalchemy import pool
 
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine, async_engine_from_config
-from city_api.models import City
-from temperature_api.models import Temperature
 
 from database import Base
 
