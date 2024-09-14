@@ -1,5 +1,4 @@
-from fastapi import HTTPException
-
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -9,6 +8,11 @@ from city_api import models, schemas
 
 async def get_city(db: AsyncSession, city_id: int) -> schemas.CityList | None:
     result = await db.execute(select(models.City).filter(models.City.id == city_id))
+    return result.scalars().first()
+
+
+async def get_city_by_name(db: AsyncSession, name:str) -> schemas.CityList | None:
+    result = await db.execute(select(models.City).filter(models.City.name == name))
     return result.scalars().first()
 
 
@@ -40,13 +44,27 @@ async def update_city(db: AsyncSession, city_id: int, city_update: schemas.CityC
         result = await db.execute(select(models.City).filter(models.City.id == city_id))
         db_city = result.scalars().first()
         if db_city is None:
-            return None
+            return None  # No city found with the given ID
+
         db_city.name = city_update.name
         db_city.additional_info = city_update.additional_info
+
         await db.commit()
         await db.refresh(db_city)
-        return db_city
-    except Exception as e:
-        print(f"An unexpected error occurred while updating city with ID {city_id}: {e}")
-        raise HTTPException(status_code=500, detail="An error occurred while updating the city.")
 
+        return db_city
+
+    except IntegrityError as e:
+        # Handle constraint violations or similar issues
+        print(f"IntegrityError: {e}")
+        return None  # Or return a meaningful error response
+
+    except SQLAlchemyError as e:
+        # Handle generic SQLAlchemy errors
+        print(f"Database error occurred: {e}")
+        return None  # Handle the error appropriately in your application
+
+    except Exception as e:
+        # Catch any unexpected errors
+        print(f"Unexpected error occurred: {e}")
+        return None

@@ -16,5 +16,6 @@ class TemperatureCreate(TemperatureBase):
 class TemperatureList(TemperatureBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
